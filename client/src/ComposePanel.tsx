@@ -37,7 +37,7 @@ const labelStyles = {
 }
 
 const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
-  const [createNewTweet, { error }] =
+  const [createNewRecord, { error }] =
     useCreateNewTweetMutation();
   if (error) return <p>Error creating new data record: {error}</p>
 
@@ -47,18 +47,26 @@ const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
     password: "",
   })
 
+  const handleChange = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const isPortingElement = document.getElementById('is-porting')!cd 
+    isPortingElement.innerHTML = ''
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const textarea = e.currentTarget.querySelector('input')
-    if (!textarea) throw new Error('No input found');
-    const body = textarea.value;
-
-    if (body.length === 0) {
-      return
-    }
 
     // handle multiple input from form
+    const phoneNumber = (document.getElementById('phoneNumber') as HTMLInputElement)
+    
+    if (phoneNumber.value.length === 0) {
+      console.log('return')
+      return
+    } else {
+      console.log('Value for phone number is: ', phoneNumber.value)
+    }
+
+    const body = phoneNumber.value;
     const billingElement = (document.getElementById('billingAddress') as HTMLInputElement)
     console.log('Value for billing is: ', billingElement.value)
 
@@ -71,22 +79,21 @@ const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
       .then((res) =>
         res.json().then(
           (data) => {
-            const isSunnyElement = document.getElementById('is-sunny')!
-            // Weather code 0 means it's not cloudy
-            if (data.current_weather.weathercode === 0) {
-              isSunnyElement.innerHTML = 'It\'s a sunny day in California!'
+            const isPortingElement = document.getElementById('is-porting')!
+            if (data.current_weather.weathercode !== 0) {
+              isPortingElement.innerHTML = 'Porting request submitted'
             } else {
-              isSunnyElement.innerHTML = 'It\'s not a sunny day in California :('
+              isPortingElement.innerHTML = 'Issues encountered in porting. Need to contact customer service.'
             }
           }
         ))
 
     // update to backend db
-    createNewTweet({
+    createNewRecord({
       variables: { userId: currentUser.id, body },
       refetchQueries: [GET_TIMELINE_TWEETS, GET_CURRENT_USER],
     }).then(() => {
-      textarea.value = '';
+      phoneNumber.value = '';
       passwordElement.value = '';
       billingElement.value = '';
     }).catch((err: unknown) => {
@@ -105,7 +112,7 @@ const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
       flexDirection: 'column',
       gap: '20px',
     }}>
-      <form onSubmit={handleSubmit} style={{
+      <form onSubmit={handleSubmit} onChange={handleChange} style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -116,7 +123,7 @@ const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
         borderRadius: '5px',
       }}>
         <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-          <h3>Congratulations!</h3>
+          <h3>Congratulations on your new phone!</h3>
           Your phone will arrive ready to use with a new number.
           <br /><br />
           In the meantime, we'll get started on transferring your number over so you can use it with your new phone.
@@ -181,7 +188,7 @@ const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
         }} />
       </form>
 
-      <div id="is-sunny" style={{fontStyle: 'italic'}}></div>
+      <div id="is-porting" style={{fontStyle: 'italic'}}></div>
     </div>
   );
 };

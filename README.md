@@ -29,6 +29,6 @@ And finally, start the project
 yarn dev
 ```
 
-After the client and server build processes complete, you should see an "imitation Twitter" running on [http://localhost:1234](http://localhost:1234).
+After the client and server build processes complete, you should see an "phone number checking web" running on [http://localhost:1234](http://localhost:1234).
 
 

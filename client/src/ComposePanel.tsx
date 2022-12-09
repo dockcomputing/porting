@@ -36,6 +36,8 @@ const labelStyles = {
   color: '#1a1f36',
 }
 
+const PHONE_LEN = 14;
+
 const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
   const [createNewRecord, { error }] =
     useCreateNewTweetMutation();
@@ -53,20 +55,27 @@ const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
     isPortingElement.innerHTML = ''
   }
 
+  const handlePhoneInput = (e: any) => {
+    var x = e?.target?.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+    e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    setState(e.target.value)
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // handle multiple input from form
     const phoneNumber = (document.getElementById('phoneNumber') as HTMLInputElement)
     
-    if (phoneNumber.value.length === 0) {
+    if (phoneNumber.value.length < PHONE_LEN) {
       console.log('return')
       return
     } else {
       console.log('Value for phone number is: ', phoneNumber.value)
     }
 
-    const body = phoneNumber.value;
+    const body = phoneNumber.value.replace(/[\s\(\)\-]/g, "");
+    console.log(body)
     const billingElement = (document.getElementById('billingAddress') as HTMLInputElement)
     console.log('Value for billing is: ', billingElement.value)
 
@@ -137,7 +146,7 @@ const ComposePanel: React.FC<ComposePanelProps> = ({ currentUser }) => {
           <label style={labelStyles}>
             Phone Number
           </label>
-          <input name="phoneNumber" id="phoneNumber" placeholder="Enter the phone number here ..." style={inputStyles}></input>
+          <input name="phoneNumber" id="phoneNumber" placeholder="Enter the phone number here ..." style={inputStyles} onInput={handlePhoneInput} value={state.phoneNumber}></input>
         </div>
 
         <div className="form-item" style={{
